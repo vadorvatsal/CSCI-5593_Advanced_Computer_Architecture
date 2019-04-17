@@ -239,14 +239,19 @@ int main() {
 				<< endl;
 
 	}
-	std::random_device rd; // obtain a random number from hardware
-	std::mt19937 eng(rd()); // seed the generator
-	std::uniform_int_distribution<> distr(0, 16);
+	/*std::random_device rd; // obtain a random number from hardware
+	 std::mt19937 eng(rd()); // seed the generator
+	 std::uniform_int_distribution<> distr(0, 16);
 
-	for (int i = 0; i < 20; i++) {
-		//int num = (rand() % (100 - 0 + 1)) + 0;
-		cout << "Random Number " << distr(eng) << endl;
+	 for (int i = 0; i < 20; i++) {
+	 //int num = (rand() % (100 - 0 + 1)) + 0;
+	 cout << "Random Number " << distr(eng) << endl;
+	 }*/
+	int total =10000;
+	int *sub = new int[m_num_sets];
+
+	for (int i = 0; i < m_num_sets; i++) {
+		total -= sub[i];
 	}
-
 	return 0;
 }
