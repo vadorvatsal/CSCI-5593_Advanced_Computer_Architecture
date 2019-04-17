@@ -46,8 +46,6 @@ ADPGPolicy::ADPGPolicy(const Params * p) :
 		DPRINTF(ACA, "Set of Partition %d = %d - %d  \n", i,
 				partition[i].getStartSet(), partition[i].getEndSet());
 
-		partition[i].setPTR(cache, m_assoc);
-
 		DPRINTF(ACA, "For Partition %d PTR = %d , prePTR = %d \n", i,
 				partition[i].getPtr(), partition[i].getPrePtr());
 
@@ -69,11 +67,36 @@ void ADPGPolicy::touch(int64_t set, int64_t index, Tick time) {
 	assert(index >= 0 && index < m_assoc);
 	assert(set >= 0 && set < m_num_sets);
 
+	DPRINTF(ACA, "##########Touched <Set,Index> = <%d,%d>\n", set, index);
+
+	//access_count++;
+
 	m_last_ref_ptr[set][index] = time;
+	for (int i = 0; i < PARTS; i++) {
+		partition[i].setPTR(cache, m_assoc);
+	}
+	setGTR();
+	setState();
+
+	DPRINTF(ACA, "Access Iteration = %d\n", access_count);
+
+	for (int i = 0; i < PARTS; i++) {
+
+		DPRINTF(ACA, "For Partition %d PTR = %d , prePTR = %d \n", i,
+				partition[i].getPtr(), partition[i].getPrePtr());
+
+	}
+
+	DPRINTF(ACA, "GTR = %d , preGTR = %d \n", getGTR(), getPreGTR());
+
+	DPRINTF(ACA, "State = %d\n", state);
+
+	DPRINTF(ACA,
+			"------------------------------------------------------------------------------------------");
 
 }
 
-int64_t ADPGPolicy::getVictim(int64_t set) const {
+int64_t ADPGPolicy::getVictim(int64_t set) {
 	Tick time, smallest_time;
 	int64_t smallest_index = 0;
 	smallest_time = m_last_ref_ptr[set][0];
@@ -86,7 +109,9 @@ int64_t ADPGPolicy::getVictim(int64_t set) const {
 			smallest_time = time;
 		}
 	}
+	access_count++;
 
 	return smallest_index;
+
 }
 

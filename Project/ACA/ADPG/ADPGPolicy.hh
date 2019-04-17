@@ -83,7 +83,7 @@ public:
 	}
 
 	int getPrePtr() const {
-			return prePTR;
+		return prePTR;
 	}
 };
 
@@ -96,10 +96,11 @@ public:
 	~ADPGPolicy();
 
 	void touch(int64_t set, int64_t way, Tick time);
-	int64_t getVictim(int64_t set) const;
+	int64_t getVictim(int64_t set);
 
 	Cell **cache = new Cell*[m_num_sets];
-	int gTR = 0, preGTR = 0; // GTR Registers
+	int gTR = 0, preGTR = 0, maxGTR = 0; // GTR Registers
+	int access_count = 0, state = 0;
 
 	Partition *partition;
 
@@ -150,6 +151,78 @@ public:
 
 		return partition;
 	}
+
+	void setGTR() {
+
+		preGTR = gTR;
+		gTR = 0;
+
+		for (int i = 0; i < PARTS; i++) {
+			gTR += partition[i].getPtr();
+		}
+
+		if (maxGTR < gTR) {
+			maxGTR = gTR;
+		}
+	}
+
+	int getGTR() {
+		return gTR;
+	}
+
+	int getPreGTR() {
+		return preGTR;
+	}
+
+	void changeStateSet1() {
+		switch (state) {
+		case 1: {
+			state = 2;
+			break;
+		}
+		case 2: {
+			state = 3;
+			break;
+		}
+		}
+	}
+
+	void changeStateSet2() {
+		switch (state) {
+		case 3: {
+			state = 4;
+			break;
+		}
+		case 4: {
+			state = 1;
+			break;
+		}
+		}
+	}
+
+	void setState() {
+
+		if (access_count % (m_num_sets / 2) == 0) {
+			access_count = 0;
+
+			if ((preGTR - gTR) > (maxGTR / 32)) {
+				bool flag = 1;
+				for (int i = 0; i < PARTS; i++) {
+					if (partition[i].getPTRFluctuation()) {
+						flag = 0;
+					}
+				}
+
+				if (flag) {
+					changeStateSet1();
+				}
+
+			} else if ((gTR - preGTR) > (maxGTR / 64)) {
+				changeStateSet2();
+			}
+		}
+	}
+
 };
 
 #endif // __MEM_RUBY_STRUCTURES_ADPGPOLICY_HH__
