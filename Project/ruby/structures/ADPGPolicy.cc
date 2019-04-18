@@ -94,12 +94,7 @@ void ADPGPolicy::touch(int64_t set, int64_t index, Tick time) {
 		partition[i].setPTR(cache, m_assoc);
 	}
 	setGTR();
-
-	//if (access_count >= m_num_sets / 2) {
-	if (access_count >= 10000) {
-		setState();
-		access_count = 0;
-	}
+	setState();
 
 	DPRINTF(ACA, "Access Iteration = %d\n", access_count);
 
@@ -125,7 +120,7 @@ int64_t ADPGPolicy::getVictim(int64_t set) {
 	victim_count++;
 	if (victim_count == 3) {
 		replace_flag = 1;
-		//DPRINTF(ACA, "##########Replaced <Set,Index> = <%d,%d>\n", set, victim);
+		DPRINTF(ACA, "##########Replaced <Set,Index> = <%d,%d>\n", set, victim);
 		victim_count = 0;
 		//demote value here
 		demote(set);

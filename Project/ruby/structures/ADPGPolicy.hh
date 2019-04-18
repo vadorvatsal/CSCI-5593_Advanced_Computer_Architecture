@@ -30,6 +30,7 @@
 #define __MEM_RUBY_STRUCTURES_ADPGPOLICY_HH__
 #include "mem/ruby/structures/AbstractReplacementPolicy.hh"
 #include "params/ADPGReplacementPolicy.hh"
+#include "debug/ACA.hh"
 #define PARTS 6
 
 struct Cell {
@@ -52,18 +53,12 @@ public:
 	}
 
 	void setPTR(Cell **cache, int m_assoc) {
-		int temp = 0;
+		ptr = 0;
 
 		for (int i = startSet; i <= endSet; i++) {
 			for (int j = 0; j < m_assoc; j++) {
-				//ptr += cache[i][j].priority;
-				temp += cache[i][j].priority;
+				ptr += cache[i][j].priority;
 			}
-		}
-
-		if (temp != ptr) {
-			prePTR = ptr;
-			ptr = temp;
 		}
 
 	}
@@ -90,6 +85,10 @@ public:
 	int getPrePtr() const {
 		return prePTR;
 	}
+
+	void setPrePtr(int prePtr = 0) {
+		prePTR = prePtr;
+	}
 };
 
 /* Simple true ADPG replacement policy */
@@ -105,27 +104,11 @@ public:
 
 	Cell **cache = new Cell*[m_num_sets];
 	int *sub = new int[m_num_sets];
-	int gTR = 0, preGTR = 0, maxGTR = 0; // GTR Registers
-	int access_count = 0, state = 1, victim_count = 0, skip_call_count = 0;
+	int gTR = 0, preGTR = 0, maxGTR = 0, access_count = 0; // GTR Registers
+	uint8_t state = 1, victim_count = 0, skip_call_count = 0;
 	bool replace_flag = 0;
 
 	Partition *partition;
-
-	/*uint8_t incrementPriority(uint8_t priority) {
-
-	 if (priority != 3)
-	 priority++;
-	 return priority;
-
-	 }
-
-	 uint8_t decrementPriority(uint8_t priority) {
-
-	 if (priority != 0)
-	 priority--;
-	 return priority;
-
-	 }*/
 
 	Partition * getPartitions(int m_num_sets) {
 		int partValue = m_num_sets / PARTS;
@@ -146,19 +129,16 @@ public:
 	}
 
 	void setGTR() {
-		int temp = 0;
+		gTR = 0;
 
 		for (int i = 0; i < PARTS; i++) {
-			temp += partition[i].getPtr();
+			gTR += partition[i].getPtr();
 		}
 
-		if (temp != gTR) {
-			preGTR = gTR;
-			gTR = temp;
-			if (maxGTR < gTR) {
-				maxGTR = gTR;
-			}
+		if (maxGTR < gTR) {
+			maxGTR = gTR;
 		}
+
 	}
 
 	int getGTR() {
@@ -198,6 +178,9 @@ public:
 	void setState() {
 
 		if (access_count % (m_num_sets / 2) == 0) {
+			//if (access_count > 1000) {
+			DPRINTF(ACA,
+					"**********************************Checking states**********************************");
 			access_count = 0;
 
 			if ((preGTR - gTR) > (maxGTR / 32)) {
@@ -205,6 +188,7 @@ public:
 				for (int i = 0; i < PARTS; i++) {
 					if (partition[i].getPTRFluctuation()) {
 						flag = 0;
+						break;
 					}
 				}
 
@@ -212,9 +196,14 @@ public:
 					changeStateSet1();
 				}
 
-			} else if ((gTR - preGTR) > (maxGTR / 64)) {
+			} else if (preGTR != 0 && ((gTR - preGTR) > (maxGTR / 64))) {
 				changeStateSet2();
 			}
+
+			for (int i = 0; i < PARTS; i++)
+				partition[i].setPrePtr(partition[i].getPtr());
+
+			preGTR = gTR;
 		}
 	}
 
