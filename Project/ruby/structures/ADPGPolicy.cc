@@ -30,7 +30,6 @@
 
 #include "mem/ruby/structures/ADPGPolicy.hh"
 #include "debug/ACA.hh"
-#include <random>
 #include <vector>
 #include<string>
 using namespace std;
@@ -43,21 +42,14 @@ ADPGPolicy::ADPGPolicy(const Params * p) :
 
 	for (int i = 0; i < m_num_sets; i++) {
 		cache[i] = new Cell[m_assoc];
-		//sub[i] = 0;
 	}
 
-	for (int i = 0; i < PARTS; i++) {
+	/*
+	 for (int i = 0; i < PARTS; i++)
+	 DPRINTF(ACA, "Set of Partition %d = %d - %d  \n", i,
+	 partition[i].getStartSet(), partition[i].getEndSet());
+	 */
 
-		DPRINTF(ACA, "Set of Partition %d = %d - %d  \n", i,
-				partition[i].getStartSet(), partition[i].getEndSet());
-
-		DPRINTF(ACA, "For Partition %d PTR = %d , prePTR = %d \n", i,
-				partition[i].getPtr(), partition[i].getPrePtr());
-
-		DPRINTF(ACA,
-				"------------------------------------------------------------------------------------------");
-
-	}
 }
 
 ADPGPolicy::~ADPGPolicy() {
@@ -88,7 +80,7 @@ void ADPGPolicy::touch(int64_t set, int64_t index, Tick time) {
 
 	access_count++;
 
-	DPRINTF(ACA, "##########Touched <Set,Index> = <%d,%d>\n", set, index);
+//	DPRINTF(ACA, "##########Touched <Set,Index> = <%d,%d>\n", set, index);
 
 	for (int i = 0; i < PARTS; i++) {
 		partition[i].setPTR(cache, m_assoc);
@@ -120,7 +112,7 @@ int64_t ADPGPolicy::getVictim(int64_t set) {
 	victim_count++;
 	if (victim_count == 3) {
 		replace_flag = 1;
-		DPRINTF(ACA, "##########Replaced <Set,Index> = <%d,%d>\n", set, victim);
+		//DPRINTF(ACA, "##########Replaced <Set,Index> = <%d,%d>\n", set, victim);
 		victim_count = 0;
 		//demote value here
 		demote(set);
@@ -150,9 +142,8 @@ void ADPGPolicy::frequencyPriority(int64_t set, int64_t index) {
 //Demotion Policy HOA
 void ADPGPolicy::halfOfAverage(int64_t set) {
 	sub[set] = 0;
-	for (int i = 0; i < m_assoc; i++) {
+	for (int i = 0; i < m_assoc; i++)
 		sub[set] += cache[set][i].priority;
-	}
 	sub[set] = sub[set] / m_assoc / 2;
 }
 
@@ -192,14 +183,13 @@ int64_t ADPGPolicy::leftSideSelection(int64_t set) {
 
 int64_t ADPGPolicy::randomSelection(int64_t set) {
 	uint8_t min = 5, count = 0;
-
 	for (int i = 0; i < m_assoc; i++)
 		if (cache[set][i].priority < min)
 			min = cache[set][i].priority;
 
 	std::vector < int64_t > array;
 
-	for (int i = 1; i < m_assoc; i++) {
+	for (int i = 0; i < m_assoc; i++) {
 		if (cache[set][i].priority == min) {
 			array.reserve(++count);
 			array.push_back(i);
@@ -207,13 +197,7 @@ int64_t ADPGPolicy::randomSelection(int64_t set) {
 	}
 
 	if (array.size() > 1) {
-
-		std::random_device rd; // obtain a random number from hardware
-		std::mt19937 eng(rd()); // seed the generator
-		std::uniform_int_distribution<> distr(0, m_assoc - 1);
-
-		return array[distr(eng)];
-
+		return array[rand() % m_assoc];
 	} else {
 		return array[0];
 	}

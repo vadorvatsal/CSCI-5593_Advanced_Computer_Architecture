@@ -31,7 +31,7 @@
 #include "mem/ruby/structures/AbstractReplacementPolicy.hh"
 #include "params/ADPGReplacementPolicy.hh"
 #include "debug/ACA.hh"
-#define PARTS 6
+#define PARTS 4
 
 struct Cell {
 	uint8_t priority :2;
@@ -42,7 +42,7 @@ struct Cell {
 };
 
 class Partition {
-	int ptr = 0, prePTR = 0;
+	int ptr = 0, prePTR = 0, histPTR = 0;
 	int startSet, endSet;
 
 public:
@@ -88,6 +88,14 @@ public:
 
 	void setPrePtr(int prePtr = 0) {
 		prePTR = prePtr;
+	}
+
+	int getHistPtr() const {
+		return histPTR;
+	}
+
+	void setHistPtr(int histPtr = 0) {
+		histPTR = histPtr;
 	}
 };
 
@@ -178,12 +186,20 @@ public:
 	void setState() {
 
 		if (access_count % (m_num_sets / 2) == 0) {
-			//if (access_count > 1000) {
-			DPRINTF(ACA,
-					"**********************************Checking states**********************************");
+			//if (access_count > 10000) {
 			access_count = 0;
+			preGTR = 0;
+			for (int i = 0; i < PARTS; i++) {
+				if (partition[i].getPtr() == partition[i].getPrePtr()) {
+					partition[i].setPrePtr(partition[i].getHistPtr());
+				} else {
+					partition[i].setHistPtr(partition[i].getPrePtr());
+				}
+				preGTR += partition[i].getPrePtr();
+			}
 
-			if ((preGTR - gTR) > (maxGTR / 32)) {
+			//if ((preGTR - gTR) > (maxGTR / 32)) {
+			if ((preGTR - gTR) > 4) {
 				bool flag = 1;
 				for (int i = 0; i < PARTS; i++) {
 					if (partition[i].getPTRFluctuation()) {
@@ -196,18 +212,29 @@ public:
 					changeStateSet1();
 				}
 
-			} else if (preGTR != 0 && ((gTR - preGTR) > (maxGTR / 64))) {
+				//} else if (preGTR != 0 && ((gTR - preGTR) > (maxGTR / 64))) {
+			} else if (preGTR != 0 && ((gTR - preGTR) > 4)) {
 				changeStateSet2();
 			}
 
-			for (int i = 0; i < PARTS; i++)
-				partition[i].setPrePtr(partition[i].getPtr());
+			/*
+			 for (int i = 0; i < PARTS; i++)
+			 DPRINTF(ACA, "For Partition %d PTR = %d , prePTR = %d \n", i,
+			 partition[i].getPtr(), partition[i].getPrePtr());
 
-			preGTR = gTR;
+			 DPRINTF(ACA, "GTR = %d , preGTR = %d \n", getGTR(), getPreGTR());
+			 */
+
+			for (int i = 0; i < PARTS; i++) {
+				partition[i].setPrePtr(partition[i].getPtr());
+			}
+
+			//preGTR = gTR;
+
 		}
 	}
 
-	//IPDS
+//IPDS
 	void insertionPolicy(uint8_t priority, int64_t set, int64_t index);
 	void highPriority(int64_t set, int64_t index);
 	void frequencyPriority(int64_t set, int64_t index);

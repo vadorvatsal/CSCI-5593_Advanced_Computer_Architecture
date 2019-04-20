@@ -29,7 +29,10 @@
 
 from m5.params import *
 from m5.proxy import *
+#from m5.objects.LRUReplacementPolicy import LRUReplacementPolicy
 from m5.objects.ADPGReplacementPolicy import ADPGReplacementPolicy
+#from m5.objects.RandomReplacementPolicy import RandomReplacementPolicy
+#from m5.objects.MRUReplacementPolicy import MRUReplacementPolicy
 from m5.SimObject import SimObject
 
 class RubyCache(SimObject):
