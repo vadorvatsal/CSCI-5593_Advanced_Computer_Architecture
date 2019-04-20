@@ -1,6 +1,5 @@
-# -*- mode:python -*-
-
-# Copyright (c) 2012 Mark D. Hill and David A. Wood
+#
+# Copyright (c) 2013 Advanced Micro Devices, Inc
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,36 +25,17 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# Authors: Nilay Vaish
+# Author: Derek Hower
 
-Import('*')
 
-if env['PROTOCOL'] == 'None':
-    Return()
 
-SimObject('RubyCache.py')
-SimObject('DirectoryMemory.py')
-SimObject('LRUReplacementPolicy.py')
-SimObject('PseudoLRUReplacementPolicy.py')
-SimObject('ReplacementPolicy.py')
-SimObject('RubyPrefetcher.py')
-SimObject('WireBuffer.py')
-SimObject('ADPGReplacementPolicy.py')
-SimObject('RandomReplacementPolicy.py')
-SimObject('MRUReplacementPolicy.py')
+from m5.params import *
+from m5.SimObject import SimObject
+from m5.objects.ReplacementPolicy import ReplacementPolicy
 
-Source('AbstractReplacementPolicy.cc')
-Source('DirectoryMemory.cc')
-Source('CacheMemory.cc')
-Source('LRUPolicy.cc')
-Source('PseudoLRUPolicy.cc')
-Source('WireBuffer.cc')
-Source('PersistentTable.cc')
-Source('Prefetcher.cc')
-Source('TimerTable.cc')
-Source('BankedArray.cc')
-Source('ADPGPolicy.cc')
-Source('RandomPolicy.cc')
-Source('MRUPolicy.cc')
+class RandomReplacementPolicy(ReplacementPolicy):
+    type = 'RandomReplacementPolicy'
+    cxx_class = 'RandomPolicy'
+    cxx_header = 'mem/ruby/structures/RandomPolicy.hh'
 
-DebugFlag('ACA')
+
