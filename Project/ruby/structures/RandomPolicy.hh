@@ -3,8 +3,6 @@
 
 #include "mem/ruby/structures/AbstractReplacementPolicy.hh"
 #include "params/RandomReplacementPolicy.hh"
-//#include "debug/ACA.hh"
-
 /* Simple true Random replacement policy */
 
 class RandomPolicy: public AbstractReplacementPolicy {

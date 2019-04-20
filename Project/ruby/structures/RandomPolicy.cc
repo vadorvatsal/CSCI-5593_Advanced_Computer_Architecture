@@ -1,9 +1,5 @@
 #include "mem/ruby/structures/RandomPolicy.hh"
 #include "debug/ACA.hh"
-#include "bits/stdc++.h"
-#include <random>
-using namespace std::this_thread;
-// sleep_for, sleep_until
 
 RandomPolicy::RandomPolicy(const Params * p) :
 		AbstractReplacementPolicy(p) {
