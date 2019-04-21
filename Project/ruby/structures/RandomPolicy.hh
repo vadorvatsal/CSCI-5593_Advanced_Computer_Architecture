@@ -13,7 +13,6 @@ public:
 
 	void touch(int64_t set, int64_t way, Tick time);
 	int64_t getVictim(int64_t set);
-	int64_t randomVictim() const;
 
 };
 #endif // __MEM_RUBY_STRUCTURES_RANDOMPOLICY_HH__
