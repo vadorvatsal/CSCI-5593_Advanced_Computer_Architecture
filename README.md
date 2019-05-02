@@ -6,7 +6,7 @@ sudo apt install scons build-essential git m4 scons zlib1g zlib1g-dev libprotobu
 
 2. Download gem5 src code
 
-	i. cd
+	i.  cd
 	ii. git clone https://gem5.googlesource.com/public/gem5
 
 3. make changes in gem5 src code
@@ -27,7 +27,7 @@ cp -r ~/CSCI-5593_Advanced_Computer_Architecture/Project/ruby ~/gem5src/mem/.
 	iii.  tar xjf x86-system.tar.bz2
 	iv.   mv disks/linux-x86.img disks/x86root.img
 	v.    sudo mkdir -p /dist/m5/system
-	vi.   sudo chown -R "<username>:<usergroup>" /dist
+	vi.   sudo chown -R "username:usergroup" /dist
 	vii.  mv ~/binaries /dist/m5/system/.
 	viii. mv ~/disks /dist/m5/system/.
 
