@@ -47,7 +47,8 @@ cp -r ~/CSCI-5593_Advanced_Computer_Architecture/Project/ruby ~/gem5src/mem/.
   
 9. If you want to run gem5 with SPEC CPU2017  
   
-  	Read "SPEC and Gem5 IntegrationDoc.docx" document before this
+  	Read "SPEC and Gem5 IntegrationDoc.docx" document before this.
+	Link : https://github.com/vatsalvador/CSCI-5593_Advanced_Computer_Architecture/blob/master/Project/SPEC%20and%20Gem5%20IntegrationDoc.docx
   	
 	i.   cp ~/spec17_config.py ~/gem5/configs/example/.  
 	ii.  cp ~/spec2017_benchmarks.py ~/gem5/configs/example/.  
